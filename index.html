@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Half-Wave Rectifier Simulation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      color: #38bdf8;
+    }
+    .container {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    label {
+      display: inline-block;
+      width: 160px;
+      text-align: right;
+      margin-right: 10px;
+    }
+    input {
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      margin: 8px 0;
+      width: 100px;
+      text-align: center;
+    }
+    button {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: bold;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0ea5e9;
+      color: white;
+    }
+    #output {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #a3e635;
+    }
+    canvas {
+      margin-top: 25px;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 10px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <h2>⚡ Half-Wave Rectifier Simulation ⚡</h2>
+
+    <div>
+      <label>Number of Cycles:</label>
+      <input type="number" id="cycles" value="2"><br>
+      
+      <label>Peak Voltage (Vm):</label>
+      <input type="number" id="vm" value="10"><br>
+
+      <button onclick="main()">Run Simulation</button>
+    </div>
+
+    <div id="output"></div>
+
+    <h3 style="color:#facc15;">Input Voltage (Vin)</h3>
+    <canvas id="vinGraph" width="600" height="300"></canvas>
+
+    <h3 style="color:#f87171;">Output Voltage (Vout)</h3>
+    <canvas id="voutGraph" width="600" height="300"></canvas>
+  </div>
+
+  <script>
+    function main() {
+      let n = Number(document.getElementById("cycles").value);
+      let vm = Number(document.getElementById("vm").value);
+
+      let vinData = [];
+      let voutData = [];
+      let labels = [];
+
+      for (let i = 1; i <= 2 * n * 50; i++) {
+        let angle = i * 2 * Math.PI / (50 * n);
+        let vin = vm * Math.sin(angle);
+        let vout = (vin >= 0) ? vin : 0;
+
+        vinData.push(vin);
+        voutData.push(vout);
+        labels.push((angle * 180 / Math.PI).toFixed(1));
+      }
+
+      document.getElementById("output").innerText =
+        "✅ Simulated " + n + " cycles with Vm = " + vm + " V";
+
+      // Destroy old charts if rerun
+      if (window.vinChart) window.vinChart.destroy();
+      if (window.voutChart) window.voutChart.destroy();
+
+      // Vin Graph
+      const vinCtx = document.getElementById('vinGraph').getContext('2d');
+      window.vinChart = new Chart(vinCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Vin (Sine Wave)',
+            data: vinData,
+            borderColor: '#38bdf8',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: 'white' } }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Angle (degrees)', color: 'white' },
+                 ticks: { color: 'white' } },
+            y: { title: { display: true, text: 'Voltage (V)', color: 'white' },
+                 ticks: { color: 'white' } }
+          }
+        }
+      });
+
+      // Vout Graph
+      const voutCtx = document.getElementById('voutGraph').getContext('2d');
+      window.voutChart = new Chart(voutCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Vout (Half-Wave)',
+            data: voutData,
+            borderColor: '#f87171',
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: 'white' } }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Angle (degrees)', color: 'white' },
+                 ticks: { color: 'white' } },
+            y: { title: { display: true, text: 'Voltage (V)', color: 'white' },
+                 ticks: { color: 'white' } }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
